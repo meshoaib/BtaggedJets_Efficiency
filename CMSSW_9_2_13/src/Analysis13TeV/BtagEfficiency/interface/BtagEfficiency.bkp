@@ -1,0 +1,159 @@
+#ifndef _BtagEfficiency_h
+#define _BtagEfficiency_h
+
+// system include files
+
+#include <memory>
+// user include files
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+
+
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/Ptr.h"
+
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
+#include "FWCore/Framework/interface/Run.h"
+
+#include "TLorentzVector.h"
+#include "TH1.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TTree.h"
+
+#include <vector>
+#include <unordered_map>
+#include <memory>
+#include <cmath>
+#include <iostream>
+#include <string>
+
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+
+
+//
+// class decleration
+//
+
+
+class BtagEfficiency : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+   public:
+      explicit BtagEfficiency(const edm::ParameterSet&);
+      ~BtagEfficiency();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+
+   private:
+      virtual void beginJob() override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
+
+ // ----------member data ---------------------------
+	
+	 edm::EDGetTokenT<edm::View<pat::PackedCandidate>> trackTags_;
+
+        edm::EDGetTokenT<reco::VertexCollection> PvtxToken_;
+        edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> svToken_;
+
+        edm::EDGetTokenT<edm::View<pat::PackedCandidate> > CandidateToken_;
+
+        edm::EDGetTokenT<pat::MuonCollection> muonToken_;
+        edm::EDGetTokenT<edm::View<pat::Electron>  >  electronToken_; //MiniAod PAt Electrons
+        edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+        std::unordered_map<std::string,TH1*> histContainer_;
+
+
+        edm::EDGetTokenT<GenEventInfoProduct> generatorToken_;
+        edm::EDGetTokenT<GenEventInfoProduct> generatorevtToken_;
+        edm::EDGetTokenT<LHEEventProduct> generatorlheToken_;
+
+        edm::EDGetTokenT<pat::PackedGenParticleCollection> genParticlesToken_;
+        edm::EDGetTokenT<reco::GenParticleCollection> prunedGenParticlesToken_;
+        edm::EDGetTokenT<reco::GenParticleCollection> pseudoTopToken_;
+        edm::EDGetTokenT<std::vector<reco::GenJet>  > genLeptonsToken_,   genJetsToken_;
+
+
+        edm::EDGetTokenT<edm::View<PileupSummaryInfo> > pileupToken_;
+        edm::EDGetTokenT<double> rhoToken_;
+        edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+
+        std::vector<std::string> bDiscriminators_; // string for b-jet discriminators
+
+        // declare a map of b-tag discriminator histograms
+         std::map<std::string, TH1F *> bDiscriminatorsMap1;
+        std::map<std::string, TH2F *> bDiscriminatorsMap2;
+
+
+
+        edm::Service<TFileService> fs;
+
+	 TH1D *Tracks_Pt;
+        TH1D *Tracks_dz;
+        TH1D *Tracks_dxy;
+        TH1D *Tracks_mass;
+        TH1D *Tracks_energy;
+        TH1D *histo_dxyError;
+
+        TH1D *histo_Hits;
+        TH1D *histo_PixelHits;
+
+        TTree *ttree_;
+
+ 
+	unsigned int             nVtx;
+	std::vector<int>         *vertex_id;
+
+	float              priVtxX, priVtxY, priVtxZ, priVtxXE, priVtxYE, priVtxZE, priVtxCL;
+	float              priVtxXYE, priVtxXZE, priVtxYZE, genWeight_ , rho_ ;
+	double 			bDiscriminator, NoPVertices, NoSecVertices;
+	int    		   pvNTracks, nPUTrue_ ,  nPU_ , nPV_  ;
+
+};
+#endif
