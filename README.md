@@ -5,9 +5,13 @@ btagging efficiency using 2017 CMS collected data
 # Installation instructions
 
 cmsrel CMSSW_9_2_13
+
 cd CMSSW_9_2_13/src
+
 cmsenv
+
 git clone git@github.com:meshoaib/BtaggedJets_Efficiency.git
+
 scram b -j 9
 
 # Updating the code
