@@ -22,12 +22,21 @@ Output: Agent pid 59566
 #add file to git 
   -- git add file1.txt
 
-To commit changes 
+  # To commit changes 
   -- git commit -m "first commit"
 
+  # To select the remote server to push your changes
+  -- git remote add origin  git@github.com:meshoaib/BtaggedJets_Efficiency.git
+  
+  # To check the remote server
+  -- git remote -v
 
   -- git fetch origin
+  
+  # Always update your working directory to get the latest code
   -- git pull origin master
+  
+  # To push your changes to the selected remote serve
   -- git push origin master
 
 
